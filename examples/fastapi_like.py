@@ -31,20 +31,14 @@ type GetFieldItem[T, K] = typing.GetMemberType[
 # Strip `| None` from a type by iterating over its union components
 # and filtering
 type NotOptional[T] = Union[
-    *[
-        x
-        for x in typing.Iter[typing.FromUnion[T]]
-        if not typing.IsAssignable[x, None]
-    ]
+    *[x for x in typing.Iter[typing.FromUnion[T]] if not typing.IsAssignable[x, None]]
 ]
 
 # Adjust an attribute type for use in Public below by dropping | None for
 # primary keys and stripping all annotations.
 type FixPublicType[T, Init] = (
     NotOptional[T]
-    if typing.IsAssignable[
-        Literal[True], GetFieldItem[Init, Literal["primary_key"]]
-    ]
+    if typing.IsAssignable[Literal[True], GetFieldItem[Init, Literal["primary_key"]]]
     else T
 )
 
@@ -69,9 +63,7 @@ type Public[T] = typing.NewProtocol[
 # If it is a Field, then we try pulling out the "default" field,
 # otherwise we return the type itself.
 type GetDefault[Init] = (
-    GetFieldItem[Init, Literal["default"]]
-    if typing.IsAssignable[Init, Field]
-    else Init
+    GetFieldItem[Init, Literal["default"]] if typing.IsAssignable[Init, Field] else Init
 )
 
 # Create takes everything but the primary key and preserves defaults
@@ -122,7 +114,7 @@ class Hero:
 # Quick reveal_type test for running mypy against this
 if TYPE_CHECKING:
     pub_hero: Public[Hero]
-    reveal_type(pub_hero)  # noqa
+    # reveal_type(pub_hero)  # noqa
 
     creat_hero: Create[Hero]
     reveal_type(creat_hero)  # noqa
@@ -131,9 +123,8 @@ if TYPE_CHECKING:
     reveal_type(upd_hero)  # noqa
 
 
-if __name__ == '__main__':
-    from typemap.type_eval import eval_typing
-    from typemap.type_eval import format_helper
+if __name__ == "__main__":
+    from typemap.type_eval import eval_typing, format_helper
 
     print(format_helper.format_class(eval_typing(Public[Hero])))
     print(format_helper.format_class(eval_typing(Create[Hero])))
